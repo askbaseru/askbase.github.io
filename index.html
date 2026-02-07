@@ -20,6 +20,9 @@
             pointer-events: auto;
             transform: translateY(0);
         }
+
+        /* Анимация мобильного меню */
+        #mobileMenu.active { transform: translateX(0); }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 antialiased">
@@ -28,13 +31,34 @@
     <header class="fixed w-full bg-white/80 backdrop-blur-md border-b z-50">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <a href="https://askbase.ru" class="text-2xl font-bold text-blue-600">AskBase<span class="text-slate-400 text-sm font-normal ml-2">Enterprise AI</span></a>
+            
+            <!-- Desktop Nav -->
             <nav class="hidden md:flex space-x-8 text-sm font-medium">
                 <a href="#hero" class="hover:text-blue-600 transition">Что это</a>
                 <a href="#features" class="hover:text-blue-600 transition">Возможности</a>
                 <a href="#security" class="hover:text-blue-600 transition">Безопасность</a>
                 <a href="#pricing" class="hover:text-blue-600 transition">Цены</a>
             </nav>
-            <a href="#cta" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">Демо</a>
+
+            <div class="flex items-center gap-4">
+                <a href="#cta" class="hidden sm:block bg-blue-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">Демо</a>
+                
+                <!-- Кнопка Бургера (только мобила) -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl text-slate-600 p-2 focus:outline-none">
+                    <i class="fas fa-bars" id="burgerIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Overlay -->
+        <div id="mobileMenu" class="fixed inset-0 top-16 bg-white z-40 transform translate-x-full transition-transform duration-300 md:hidden border-t">
+            <nav class="flex flex-col p-6 space-y-6 text-lg font-medium bg-white shadow-lg shadow-blue-500/50">
+                <a href="#hero" onclick="toggleMobileMenu()" class="border-b pb-2">Что это</a>
+                <a href="#features" onclick="toggleMobileMenu()" class="border-b pb-2">Возможности</a>
+                <a href="#security" onclick="toggleMobileMenu()" class="border-b pb-2">Безопасность</a>
+                <a href="#pricing" onclick="toggleMobileMenu()" class="border-b pb-2">Цены</a>
+                <a href="#cta" onclick="toggleMobileMenu()" class="bg-blue-600 text-white text-center py-4 rounded-xl">Запросить демо</a>
+            </nav>
         </div>
     </header>
 
@@ -125,7 +149,6 @@
                     <a href="#cta" class="block text-center border-2 border-blue-600 text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-600 hover:text-white transition">Начать бесплатно</a>
                 </div>
 
-                <!-- Карточка Профессиональный -->
                 <div class="bg-white p-8 rounded-3xl border-2 border-blue-600 relative transform md:-translate-y-4 shadow-xl">
                     <div class="absolute top-0 right-8 transform -translate-y-1/2 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">Популярный</div>
                     <h3 class="text-lg font-bold text-blue-600 uppercase tracking-widest mb-2">Профессиональный</h3>
@@ -197,19 +220,34 @@
         const videoIframe = document.getElementById('mainVideo');
         const ctaForm = document.getElementById('ctaForm');
         const emailInput = document.getElementById('emailInput');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const burgerIcon = document.getElementById('burgerIcon');
+
+        // Мобильное меню
+        function toggleMobileMenu() {
+            const isOpen = mobileMenu.classList.contains('active');
+            if (isOpen) {
+                mobileMenu.classList.remove('active');
+                burgerIcon.classList.add('fa-bars');
+                burgerIcon.classList.remove('fa-times');
+                document.body.style.overflow = '';
+            } else {
+                mobileMenu.classList.add('active');
+                burgerIcon.classList.remove('fa-bars');
+                burgerIcon.classList.add('fa-times');
+                document.body.style.overflow = 'hidden';
+            }
+        }
 
         // Логика формы
         ctaForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const emailValue = emailInput.value.trim();
-
             if (!emailValue) {
-                // Пусто - подсвечиваем поле
                 emailInput.classList.remove('border-transparent');
                 emailInput.classList.add('border-red-500', 'bg-red-50');
                 emailInput.focus();
             } else {
-                // Введено - вызываем mailto
                 const subject = encodeURIComponent("Запрос демо-доступа к AskBase AI");
                 const body = encodeURIComponent(`Здравствуйте! Хочу запросить пилотный доступ.\nКонтактный email: ${emailValue}`);
                 window.location.href = `${mailto}?subject=${subject}&body=${body}`;
